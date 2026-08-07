@@ -41,7 +41,19 @@ bash zsq_arm64_bundle/run_on_b.sh \
   falcon/dataset \
   zsq_runs_erq9
 ```
+Maybe?
+```
+THREAD_COUNT=16 \
+SEARCH_RANGES=10,15,20,30,40,50,75,100,150,200,300,400 \
+TOP_KS=10 \
+WARMUP_QUERIES=1000 \
+ROUNDS=5 \
+BUILD_ORDER=rbq,zsq \
+SEARCH_ORDER=rbq,zsq \
+bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_runs
 
+echo "exit_code=$?"
+```
 每次测试结束都会自动刷新：
 
 ```text
