@@ -6,6 +6,17 @@ PROJECT_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
 FALCON_DIR=${1:-"$PROJECT_ROOT/falcon"}
 OUTPUT_TGZ=${2:-"$PROJECT_ROOT/zsq_arm64_bundle.tar.gz"}
 
+# Resolve caller-supplied relative paths before changing into the Falcon workspace.
+# This keeps both the no-argument command and an optional ./falcon argument portable.
+if [[ ! -d "$FALCON_DIR" ]]; then
+    echo "ERROR: Falcon directory not found: $FALCON_DIR" >&2
+    exit 1
+fi
+FALCON_DIR=$(cd -- "$FALCON_DIR" && pwd)
+if [[ "$OUTPUT_TGZ" != /* ]]; then
+    OUTPUT_TGZ="$(pwd)/$OUTPUT_TGZ"
+fi
+
 if [[ $(uname -m) != "aarch64" && $(uname -m) != "arm64" ]]; then
     echo "ERROR: A must be an ARM64 Linux machine; current architecture: $(uname -m)" >&2
     exit 1

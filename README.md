@@ -19,10 +19,10 @@
 
 ### 上传到 A（ARM64 编译机）
 
-把下列目录放成同级结构：
+把下列目录放成同级结构。后续所有命令都在 `falcon` 的父目录执行：
 
 ```text
-/path/FS_zsq/
+./
 ├── falcon/                         # 完整 Falcon 仓库
 │   └── devel/builder/
 │       └── bazel-7.4.1-linux-arm64
@@ -45,7 +45,7 @@ B 只需要：
 3. SIFT1M 的三个原始二进制文件：
 
 ```text
-/data/sift/
+./falcon/dataset/
 ├── sift_base.fvecs                 # 1,000,000 x 128
 ├── sift_query.fvecs                # 10,000 x 128
 └── sift_groundtruth.ivecs          # 10,000 x 100
@@ -59,27 +59,24 @@ B 只需要：
 
 ```bash
 uname -m
-chmod +x /path/FS_zsq/falcon/devel/builder/bazel-7.4.1-linux-arm64
-chmod +x /path/FS_zsq/test_zsq/build_on_a.sh
+chmod +x falcon/devel/builder/bazel-7.4.1-linux-arm64
+chmod +x test_zsq/build_on_a.sh
 ```
 
 `uname -m` 应输出 `aarch64` 或 `arm64`。Falcon 的 `linux_arm64` 配置启用了 `armv8.2-a+crypto+crc+dotprod`，所以 B 的 CPU 也必须支持相应指令，重点检查 `asimddp/dotprod`。
 
 ### 3.2 执行编译
 
-目录布局与第 2 节一致时：
+保持终端位于 `falcon` 的父目录，直接执行：
 
 ```bash
-cd /path/FS_zsq
-bash test_zsq/build_on_a.sh \
-  /path/FS_zsq/falcon \
-  /path/FS_zsq/zsq_arm64_bundle.tar.gz
+bash test_zsq/build_on_a.sh
 ```
 
 脚本实际执行的 Bazel 目标是：
 
 ```bash
-cd /path/FS_zsq/falcon
+cd falcon
 devel/builder/bazel-7.4.1-linux-arm64 build \
   --config=linux_arm64 \
   -c opt \
@@ -94,8 +91,8 @@ devel/builder/bazel-7.4.1-linux-arm64 build \
 脚本生成：
 
 ```text
-/path/FS_zsq/zsq_arm64_bundle.tar.gz
-/path/FS_zsq/zsq_arm64_bundle.tar.gz.sha256
+./zsq_arm64_bundle.tar.gz
+./zsq_arm64_bundle.tar.gz.sha256
 ```
 
 压缩包内部包含：
@@ -116,15 +113,13 @@ zsq_arm64_bundle/
 ### 4.1 解压与环境检查
 
 ```bash
-cd /path/on/B
 sha256sum -c zsq_arm64_bundle.tar.gz.sha256
 tar -xzf zsq_arm64_bundle.tar.gz
-cd zsq_arm64_bundle
 
 uname -m
 lscpu | grep -Ei 'asimddp|dotprod'
 ldd --version | head -n 1
-chmod +x run_on_b.sh bin/zsq_benchmark
+chmod +x zsq_arm64_bundle/run_on_b.sh zsq_arm64_bundle/bin/zsq_benchmark
 ```
 
 要求：
@@ -136,7 +131,7 @@ chmod +x run_on_b.sh bin/zsq_benchmark
 可先检查动态库：
 
 ```bash
-LD_LIBRARY_PATH="$PWD/lib" ldd bin/zsq_benchmark
+LD_LIBRARY_PATH="$PWD/zsq_arm64_bundle/lib" ldd zsq_arm64_bundle/bin/zsq_benchmark
 ```
 
 输出中不能出现 `not found`。
@@ -144,7 +139,7 @@ LD_LIBRARY_PATH="$PWD/lib" ldd bin/zsq_benchmark
 ### 4.2 一键运行
 
 ```bash
-bash run_on_b.sh /data/sift /data/zsq_runs
+bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_runs
 ```
 
 该命令依次完成：
@@ -157,7 +152,7 @@ bash run_on_b.sh /data/sift /data/zsq_runs
 每次运行自动创建新目录，不覆盖旧结果：
 
 ```text
-/data/zsq_runs/zsq_run_YYYYMMDDTHHMMSSZ/
+./zsq_runs/zsq_run_YYYYMMDDTHHMMSSZ/
 ├── indexes/
 │   ├── rbq.index
 │   └── zsq.index
@@ -180,7 +175,7 @@ bash run_on_b.sh /data/sift /data/zsq_runs
 
 ```bash
 CPUSET=0-15 THREAD_COUNT=16 \
-  bash run_on_b.sh /data/sift /data/zsq_runs
+  bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_runs
 ```
 
 搜索 benchmark 当前为单线程逐查询计时；固定到多核集合仍允许操作系统迁核。如要测最稳定的单线程延迟，可使用 `CPUSET=0`，但建库也会被限制到单核。更推荐分两次手动执行，或先以默认流程完成整体对比。
@@ -197,14 +192,14 @@ SEARCH_RANGES=100,200,400,800 \
 TOP_KS=10,100 \
 WARMUP_QUERIES=1000 \
 ROUNDS=10 \
-  bash run_on_b.sh /data/sift /data/zsq_runs
+  bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_runs
 ```
 
 为减小温度、缓存和执行顺序造成的偏差，第二轮可反转顺序：
 
 ```bash
 BUILD_ORDER=zsq,rbq SEARCH_ORDER=zsq,rbq \
-  bash run_on_b.sh /data/sift /data/zsq_runs
+  bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_runs
 ```
 
 建议至少做三次完整运行，奇数次使用 `rbq,zsq`，偶数次使用 `zsq,rbq`。每次建出的图本身也可能因 Falcon 随机初始化而不同。
