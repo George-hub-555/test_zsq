@@ -71,6 +71,7 @@ while IFS=$'\t' read -r lib path; do
 done < <(ldd "$BINARY" | awk -v allow="$GLIBC_ALLOW" '$2 == "=>" && $1 !~ allow {print $1 "\t" $3}' | sort -u)
 
 cp -f "$SCRIPT_DIR/run_on_b.sh" "$PACKAGE_DIR/run_on_b.sh"
+cp -f "$SCRIPT_DIR/extract_zsq_results.py" "$PACKAGE_DIR/extract_zsq_results.py"
 cp -f "$SCRIPT_DIR/README.md" "$PACKAGE_DIR/README.md"
 chmod 755 "$PACKAGE_DIR/run_on_b.sh"
 

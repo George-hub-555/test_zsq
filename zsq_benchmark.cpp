@@ -18,6 +18,8 @@
 
 #include "common/shard_format/bundles/bundle_file_reader.h"
 #include "common/shard_format/bundles/bundle_file_writer.h"
+#include "common/shard_format/fusion_index/embedding_index/quantizer_index/rabitq_index/rabitq_codec/blink_graph_erq_builder.h"
+#include "common/shard_format/fusion_index/embedding_index/quantizer_index/rabitq_index/rabitq_codec/blink_graph_erq_searcher_adaptive.h"
 #include "common/shard_format/fusion_index/embedding_index/quantizer_index/rabitq_index/rabitq_codec/blink_graph_rabitq_builder.h"
 #include "common/shard_format/fusion_index/embedding_index/quantizer_index/rabitq_index/rabitq_codec/blink_graph_rabitq_searcher_adaptive.h"
 #include "common/shard_format/fusion_index/embedding_index/quantizer_index/rabitq_index/rabitq_codec/blink_graph_zsq_builder.h"
@@ -29,11 +31,14 @@ using Clock = std::chrono::steady_clock;
 using Falcon::Common::ShardFormat::BundleFileReader;
 using Falcon::Common::ShardFormat::BundleFileWriter;
 using Falcon::Common::ShardFormat::BundleStorageInfo;
+using Falcon::Common::ShardFormat::DistanceMetricType;
 using Falcon::Common::ShardFormat::ReaderType;
+using Falcon::Common::ShardFormat::RotatorType;
+using Falcon::Common::ShardFormat::SectionConfig;
 using namespace Falcon::Common::ShardFormat::FusionIndex;
 
 DEFINE_string(mode, "", "validate, build, or search");
-DEFINE_string(variant, "", "rbq or zsq");
+DEFINE_string(variant, "", "erq9 or zsq");
 DEFINE_string(base_path, "", "SIFT base .fvecs path");
 DEFINE_string(query_path, "", "SIFT query .fvecs path");
 DEFINE_string(groundtruth_path, "", "SIFT ground-truth .ivecs path");
@@ -55,6 +60,26 @@ DEFINE_uint32(warmup_queries, 1000, "warm-up query count for each ef/top-k pair"
 DEFINE_uint32(rounds, 5, "timed rounds for each ef/top-k pair");
 
 namespace {
+constexpr uint32_t ERQ_BASE_BIT_LEN = 1;
+constexpr uint32_t ERQ_EXT_BIT_LEN = 8;
+constexpr uint32_t ERQ_CODE_BITS_PER_DIM = ERQ_BASE_BIT_LEN + ERQ_EXT_BIT_LEN;
+constexpr uint32_t ZSQ_CODE_BITS_PER_DIM = 8;
+
+struct QuantizationInfo {
+    const char* quantizer;
+    uint32_t baseBitLen;
+    uint32_t extBitLen;
+    uint32_t codeBitsPerDim;
+};
+
+QuantizationInfo GetQuantizationInfo(const std::string& variant)
+{
+    if (variant == "zsq") {
+        return {"zsq", 0, 0, ZSQ_CODE_BITS_PER_DIM};
+    }
+    return {"erq", ERQ_BASE_BIT_LEN, ERQ_EXT_BIT_LEN, ERQ_CODE_BITS_PER_DIM};
+}
+
 
 double Seconds(Clock::duration duration)
 {
@@ -239,7 +264,7 @@ bool ParsePositiveList(const std::string& text, const std::string& name, std::ve
 
 bool IsKnownVariant(const std::string& variant)
 {
-    return variant == "rbq" || variant == "zsq";
+    return variant == "erq9" || variant == "zsq";
 }
 
 SectionConfig MakeConfig(uint32_t searchRange)
@@ -258,7 +283,7 @@ SectionConfig MakeConfig(uint32_t searchRange)
     blinkConfig->set_link_candidate_size(FLAGS_link_candidate_size);
     blinkConfig->set_build_iter_count(FLAGS_build_iter_count);
     blinkConfig->set_search_range(searchRange);
-    blinkConfig->mutable_rabitq_section_config()->set_ext_bit_len(8);
+    blinkConfig->mutable_rabitq_section_config()->set_ext_bit_len(ERQ_EXT_BIT_LEN);
     blinkConfig->mutable_rabitq_section_config()->set_rotator_type(static_cast<RotatorType>(FLAGS_rotator_type));
     return config;
 }
@@ -274,7 +299,7 @@ bool ValidateCommonFlags()
         return false;
     }
     if (FLAGS_batch_size_mb == 0) {
-        std::cerr << "batch_size_mb must be non-zero when using the adaptive RBQ/ZSQ searchers" << std::endl;
+        std::cerr << "batch_size_mb must be non-zero when using the adaptive ERQ/ZSQ searchers" << std::endl;
         return false;
     }
     return true;
@@ -292,7 +317,7 @@ std::unique_ptr<BlinkGraphRaBitQBuilder> MakeBuilder(const std::string& variant)
     if (variant == "zsq") {
         return std::make_unique<BlinkGraphZSQBuilder>();
     }
-    return std::make_unique<BlinkGraphRaBitQBuilder>();
+    return std::make_unique<BlinkGraphERQBuilder>();
 }
 
 std::unique_ptr<BlinkGraphRaBitQSearcherInterface> MakeSearcher(const std::string& variant)
@@ -300,13 +325,13 @@ std::unique_ptr<BlinkGraphRaBitQSearcherInterface> MakeSearcher(const std::strin
     if (variant == "zsq") {
         return std::make_unique<BlinkGraphZSQSearcherAdaptive>();
     }
-    return std::make_unique<BlinkGraphRaBitQSearcherAdaptive>();
+    return std::make_unique<BlinkGraphERQSearcherAdaptive>();
 }
 
 bool RunBuild()
 {
     if (!IsKnownVariant(FLAGS_variant) || FLAGS_index_path.empty() || FLAGS_output_csv.empty()) {
-        std::cerr << "build requires --variant=rbq|zsq, --index_path, and --output_csv" << std::endl;
+        std::cerr << "build requires --variant=erq9|zsq, --index_path, and --output_csv" << std::endl;
         return false;
     }
     if (!ValidateVectorFile(FLAGS_base_path, FLAGS_dim, FLAGS_base_count, "base") ||
@@ -361,9 +386,12 @@ bool RunBuild()
         std::cerr << "Cannot create CSV " << FLAGS_output_csv << std::endl;
         return false;
     }
-    csv << "variant,base_count,dim,thread_count,link_range,link_candidate_size,build_iter_count,batch_size_mb,"
+    const QuantizationInfo quantization = GetQuantizationInfo(FLAGS_variant);
+    csv << "variant,quantizer,base_bit_len,ext_bit_len,code_bits_per_dim,base_count,dim,thread_count,link_range,link_candidate_size,build_iter_count,batch_size_mb,"
            "rotator_type,load_seconds,init_seconds,build_seconds,save_seconds,total_seconds,index_bytes,max_rss_kib\n";
-    csv << FLAGS_variant << ',' << FLAGS_base_count << ',' << FLAGS_dim << ',' << FLAGS_thread_count << ','
+    csv << FLAGS_variant << ',' << quantization.quantizer << ',' << quantization.baseBitLen << ','
+        << quantization.extBitLen << ',' << quantization.codeBitsPerDim << ',' << FLAGS_base_count << ','
+        << FLAGS_dim << ',' << FLAGS_thread_count << ','
         << FLAGS_link_range << ',' << FLAGS_link_candidate_size << ',' << FLAGS_build_iter_count << ','
         << FLAGS_batch_size_mb << ',' << FLAGS_rotator_type << ',' << std::fixed << std::setprecision(6)
         << Seconds(loadEnd - loadStart) << ',' << Seconds(initEnd - initStart) << ','
@@ -371,7 +399,8 @@ bool RunBuild()
         << Seconds(saveEnd - totalStart) << ',' << indexBytes << ',' << MaxRssKiB() << '\n';
     std::cout << "BUILD_OK variant=" << FLAGS_variant << " index=" << FLAGS_index_path
               << " index_bytes=" << indexBytes << " build_seconds=" << Seconds(buildEnd - buildStart)
-              << " max_rss_kib=" << MaxRssKiB() << std::endl;
+              << " code_bits_per_dim=" << quantization.codeBitsPerDim << " max_rss_kib=" << MaxRssKiB()
+              << std::endl;
     return true;
 }
 
@@ -404,7 +433,7 @@ uint64_t RecallMatches(const std::vector<std::pair<float, uint32_t>>& results,
 bool RunSearch()
 {
     if (!IsKnownVariant(FLAGS_variant) || FLAGS_index_path.empty() || FLAGS_output_csv.empty()) {
-        std::cerr << "search requires --variant=rbq|zsq, --index_path, and --output_csv" << std::endl;
+        std::cerr << "search requires --variant=erq9|zsq, --index_path, and --output_csv" << std::endl;
         return false;
     }
     if (!fs::exists(FLAGS_index_path) || fs::exists(FLAGS_output_csv)) {
@@ -463,7 +492,8 @@ bool RunSearch()
         std::cerr << "Cannot create CSV " << FLAGS_output_csv << std::endl;
         return false;
     }
-    csv << "variant,base_count,query_count,dim,top_k,search_range,rounds,warmup_queries,qps,avg_us,p50_us,"
+    const QuantizationInfo quantization = GetQuantizationInfo(FLAGS_variant);
+    csv << "variant,quantizer,base_bit_len,ext_bit_len,code_bits_per_dim,base_count,query_count,dim,top_k,search_range,rounds,warmup_queries,qps,avg_us,p50_us,"
            "p90_us,p95_us,p99_us,recall_at_k,avg_result_count,index_load_ms,index_bytes,max_rss_kib,checksum\n";
 
     for (uint32_t searchRange : searchRanges) {
@@ -514,7 +544,9 @@ bool RunSearch()
                                   (static_cast<double>(FLAGS_query_count) * static_cast<double>(topK));
             const double avgResultCount = static_cast<double>(resultCount) / FLAGS_query_count;
             const long maxRss = MaxRssKiB();
-            csv << FLAGS_variant << ',' << FLAGS_base_count << ',' << FLAGS_query_count << ',' << FLAGS_dim << ','
+            csv << FLAGS_variant << ',' << quantization.quantizer << ',' << quantization.baseBitLen << ','
+                << quantization.extBitLen << ',' << quantization.codeBitsPerDim << ',' << FLAGS_base_count << ','
+                << FLAGS_query_count << ',' << FLAGS_dim << ','
                 << topK << ',' << searchRange << ',' << FLAGS_rounds << ',' << warmupCount << ',' << std::fixed
                 << std::setprecision(6) << qps << ',' << avgUs << ',' << Percentile(latenciesUs, 0.50) << ','
                 << Percentile(latenciesUs, 0.90) << ',' << Percentile(latenciesUs, 0.95) << ','
@@ -523,7 +555,8 @@ bool RunSearch()
             csv.flush();
             std::cout << "SEARCH_OK variant=" << FLAGS_variant << " top_k=" << topK
                       << " search_range=" << searchRange << " qps=" << qps << " avg_us=" << avgUs
-                      << " recall=" << recall << " max_rss_kib=" << maxRss << std::endl;
+                      << " recall=" << recall << " code_bits_per_dim=" << quantization.codeBitsPerDim
+                      << " max_rss_kib=" << maxRss << std::endl;
         }
     }
     return true;

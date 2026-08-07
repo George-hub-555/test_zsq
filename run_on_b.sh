@@ -14,6 +14,14 @@ if [[ ! -x "$BIN" ]]; then
     echo "ERROR: benchmark binary not found: $BIN" >&2
     exit 1
 fi
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "ERROR: python3 is required to generate the combined plotting CSV" >&2
+    exit 1
+fi
+if [[ ! -f "$SCRIPT_DIR/extract_zsq_results.py" ]]; then
+    echo "ERROR: result extractor not found: $SCRIPT_DIR/extract_zsq_results.py" >&2
+    exit 1
+fi
 for file in sift_base.fvecs sift_query.fvecs sift_groundtruth.ivecs; do
     if [[ ! -f "$DATA_DIR/$file" ]]; then
         echo "ERROR: dataset file missing: $DATA_DIR/$file" >&2
@@ -40,8 +48,8 @@ SEARCH_RANGES=${SEARCH_RANGES:-50,100,200,400}
 TOP_KS=${TOP_KS:-1,10,100}
 WARMUP_QUERIES=${WARMUP_QUERIES:-1000}
 ROUNDS=${ROUNDS:-5}
-BUILD_ORDER=${BUILD_ORDER:-rbq,zsq}
-SEARCH_ORDER=${SEARCH_ORDER:-rbq,zsq}
+BUILD_ORDER=${BUILD_ORDER:-erq9,zsq}
+SEARCH_ORDER=${SEARCH_ORDER:-erq9,zsq}
 
 RUN_PREFIX=()
 if [[ -n ${CPUSET:-} ]]; then
@@ -102,9 +110,12 @@ run_timed() {
     echo "BUILD_ORDER=$BUILD_ORDER"
     echo "SEARCH_ORDER=$SEARCH_ORDER"
     echo "CPUSET=${CPUSET:-}"
+    echo "ERQ_EXT_BIT_LEN=8"
+    echo "ERQ_CODE_BITS_PER_DIM=9"
+    echo "ZSQ_CODE_BITS_PER_DIM=8"
 } > "$RUN_DIR/results/environment.txt"
 
-echo "[1/3] Validate SIFT files"
+echo "[1/4] Validate SIFT files"
 "${RUN_PREFIX[@]}" "$BIN" \
     --mode=validate \
     "--base_path=$DATA_DIR/sift_base.fvecs" \
@@ -114,7 +125,7 @@ echo "[1/3] Validate SIFT files"
 
 build_variant() {
     local variant=$1
-    case "$variant" in rbq|zsq) ;; *) echo "ERROR: invalid build variant: $variant" >&2; exit 1 ;; esac
+    case "$variant" in erq9|zsq) ;; *) echo "ERROR: invalid build variant: $variant" >&2; exit 1 ;; esac
     echo "Build $variant"
     run_timed "$RUN_DIR/results/build_${variant}.time.txt" \
         "$BIN" \
@@ -128,7 +139,7 @@ build_variant() {
 
 search_variant() {
     local variant=$1
-    case "$variant" in rbq|zsq) ;; *) echo "ERROR: invalid search variant: $variant" >&2; exit 1 ;; esac
+    case "$variant" in erq9|zsq) ;; *) echo "ERROR: invalid search variant: $variant" >&2; exit 1 ;; esac
     echo "Search $variant"
     run_timed "$RUN_DIR/results/search_${variant}.time.txt" \
         "$BIN" \
@@ -145,13 +156,13 @@ search_variant() {
         "${COMMON_FLAGS[@]}" 2>&1 | tee "$RUN_DIR/results/search_${variant}.log"
 }
 
-echo "[2/3] Build indexes in order: $BUILD_ORDER"
+echo "[2/4] Build indexes in order: $BUILD_ORDER"
 IFS=',' read -r -a BUILD_VARIANTS <<< "$BUILD_ORDER"
 for variant in "${BUILD_VARIANTS[@]}"; do
     build_variant "$variant"
 done
 
-echo "[3/3] Search indexes in order: $SEARCH_ORDER"
+echo "[3/4] Search indexes in order: $SEARCH_ORDER"
 IFS=',' read -r -a SEARCH_VARIANTS <<< "$SEARCH_ORDER"
 for variant in "${SEARCH_VARIANTS[@]}"; do
     search_variant "$variant"
@@ -162,5 +173,12 @@ done
     find results indexes -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
 )
 
+
+echo "[4/4] Refresh combined plotting CSV"
+python3 "$SCRIPT_DIR/extract_zsq_results.py" \
+    --input "$WORK_ROOT" \
+    --output "$WORK_ROOT/Sum/zsq_key_metrics.csv"
+
 echo "Run complete: $RUN_DIR"
-echo "Please retain the entire run directory, especially results/*.csv, results/*.time.txt, environment.txt, and SHA256SUMS."
+echo "Combined plotting CSV: $WORK_ROOT/Sum/zsq_key_metrics.csv"
+echo "Copy that single CSV to the local machine for plotting; retain the run directory for audit details."
