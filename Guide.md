@@ -31,6 +31,12 @@ B 机执行：
 sha256sum -c zsq_arm64_bundle_erq9.tar.gz.sha256
 tar -xzf zsq_arm64_bundle_erq9.tar.gz
 
+sed -i '/ldd --version 2>&1 | head -n 1/c\    ldd --version 2>&1' \
+  zsq_arm64_bundle/run_on_b.sh
+
+bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_runs
+echo "exit_code=$?"
+
 bash zsq_arm64_bundle/run_on_b.sh \
   falcon/dataset \
   zsq_runs_erq9
