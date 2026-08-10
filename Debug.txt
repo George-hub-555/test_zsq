@@ -1,0 +1,11 @@
+CMake Error at /usr/share/cmake/Modules/FindPackageHandleStandardArgs.cmake:230 (message):
+  Could NOT find BLAS (missing: BLAS_LIBRARIES)
+Call Stack (most recent call first):
+  /usr/share/cmake/Modules/FindPackageHandleStandardArgs.cmake:594 (_FPHSA_FAILURE_MESSAGE)
+  /usr/share/cmake/Modules/FindBLAS.cmake:1337 (find_package_handle_standard_args)
+  /root/g50064150/Faiss-zsq/faiss/faiss/CMakeLists.txt:743 (find_package)
+
+
+-- Configuring incomplete, errors occurred!
+See also "/root/g50064150/Faiss-zsq/build-aarch64/CMakeFiles/CMakeOutput.log".
+See also "/root/g50064150/Faiss-zsq/build-aarch64/CMakeFiles/CMakeError.log".
