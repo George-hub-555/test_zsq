@@ -70,3 +70,47 @@ find zsq_decode_l2_test -type f -name search_zsq.csv -print
 ```
 
 如果连 `[1/4]` 都长时间看不到，把 `zsq_run_debug.log` 最后约50行发给我。
+
+
+需要看具体是哪种格式差异。请在 B 机执行并把完整输出发来：
+
+```bash
+uname -m
+file zsq_arm64_bundle/run_on_b.sh
+file zsq_arm64_bundle/bin/zsq_benchmark
+head -n 2 zsq_arm64_bundle/run_on_b.sh | od -An -tx1c
+bash -n zsq_arm64_bundle/run_on_b.sh
+```
+
+预期应为：
+
+```text
+uname：aarch64
+run_on_b.sh：ASCII/UTF-8 text，不含 CRLF
+zsq_benchmark：ELF 64-bit LSB executable, ARM aarch64
+bash -n：无输出，退出码0
+```
+
+可再查看退出码：
+
+```bash
+bash -n zsq_arm64_bundle/run_on_b.sh
+echo $?
+```
+
+常见差异对应关系：
+
+- `CRLF line terminators`：执行 `sed -i 's/\r$//' zsq_arm64_bundle/run_on_b.sh`
+- 二进制显示 `x86-64`：编译架构错误，必须在 ARM64 配置下重新编译
+- 二进制显示 `PE32/PE32+`：这是 Windows 可执行文件，Linux 不能运行
+- 显示 `ELF ... ARM aarch64`：架构正确，继续检查动态库
+- `bash -n` 非0：脚本语法或换行格式错误
+
+动态库也检查一下：
+
+```bash
+LD_LIBRARY_PATH="$PWD/zsq_arm64_bundle/lib" \
+ldd zsq_arm64_bundle/bin/zsq_benchmark
+```
+
+把上述输出贴出来，我才能准确判断是哪一种格式问题。
