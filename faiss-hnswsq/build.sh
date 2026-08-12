@@ -25,6 +25,7 @@ set -euo pipefail
 # 参数解析
 # ---------------------------------------------------------------------------
 USE_SVE=0
+DYNAMIC_STDCXX=0
 JOBS=""
 # 路径策略: 全部相对脚本所在目录 (SCRIPT_DIR)。支持两种目录结构:
 #   结构A (项目根):    <dir>/faiss  +  <dir>/benchmark_sift1m.cpp + build.sh
@@ -44,6 +45,7 @@ fi
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --sve) USE_SVE=1 ;;
+        --dynamic-stdcxx) DYNAMIC_STDCXX=1 ;;
         --jobs)
             JOBS="$2"
             shift
@@ -211,11 +213,51 @@ else
     LINK_LIBS+=(-lopenblas)
 fi
 
+# 检查 libstdc++ (链接需要): -static-libstdc++ 要求静态库 libstdc++.a。
+# RPM 系 (openEuler/CentOS/Fedora) 注意: libstdc++-devel 只含头文件和动态库,
+# 静态库 .a 在单独的 libstdc++-static 包里!
+# g++ -print-file-name 找不到时会原样返回文件名。
+STDCXX_A="$(g++ -print-file-name=libstdc++.a)"
+if [[ "$STDCXX_A" == "libstdc++.a" || ! -f "$STDCXX_A" ]]; then
+    if [[ "$DYNAMIC_STDCXX" -eq 1 ]]; then
+        echo "    警告: 未找到 libstdc++.a, 按 --dynamic-stdcxx 改用动态链接"
+        echo "    产物将依赖 libstdc++.so.6, 测试机 B 需安装 libstdc++ 运行时"
+    else
+        echo "错误: 找不到 libstdc++.a (静态 C++ 标准库)" >&2
+        echo "  openEuler/CentOS/Fedora: sudo dnf install libstdc++-static" >&2
+        echo "    (注意: libstdc++-devel 不含静态库, 必须装 -static 包)" >&2
+        echo "  Ubuntu/Debian: sudo apt install libstdc++-6-dev" >&2
+        echo "  若仓库没有该包, 可加 --dynamic-stdcxx 改用动态链接 libstdc++" >&2
+        exit 1
+    fi
+fi
+
+# 动态链接 libstdc++ 时, -static-libstdc++ 会导致 ld 仍去找 .a, 需去掉
+STDCXX_FLAGS="-static-libgcc -static-libstdc++"
+if [[ "$DYNAMIC_STDCXX" -eq 1 ]]; then
+    STDCXX_FLAGS="-static-libgcc"
+fi
+
+# libgfortran: OpenBLAS 的 LAPACK 部分是 Fortran, 静态链接 libopenblas.a 后
+# 其内部符号 (如 _gfortran_concat_string) 需要 libgfortran 提供。
+# 默认优先静态链接 (-static-libgfortran), 若静态库缺失则回退动态,
+# 并提示部署时注意。仅在使用静态 OpenBLAS 时需要。
+if [[ -n "$OPENBLAS_DEV_LIB" ]]; then
+    GFORTRAN_A="$(gfortran -print-file-name=libgfortran.a 2>/dev/null || true)"
+    if [[ "$GFORTRAN_A" == "libgfortran.a" || -z "$GFORTRAN_A" || ! -f "$GFORTRAN_A" ]]; then
+        echo "    警告: 未找到 libgfortran.a, 改用动态链接 libgfortran.so"
+        echo "    产物将依赖 libgfortran.so, 测试机 B 需安装 gcc-gfortran 运行时"
+        STDCXX_FLAGS="${STDCXX_FLAGS} -lgfortran"
+    else
+        STDCXX_FLAGS="${STDCXX_FLAGS} -static-libgfortran"
+    fi
+fi
+
 g++ -O3 -std=c++17 \
     -I "${FAISS_SRC}" \
     "${BENCH_SRC}" \
     "${LINK_LIBS[@]}" \
-    -fopenmp -static-libgcc -static-libstdc++ \
+    -fopenmp ${STDCXX_FLAGS} \
     -lpthread -lm -ldl \
     -o "${BUILD_DIR}/benchmark_sift1m"
 
