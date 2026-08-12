@@ -114,3 +114,86 @@ ldd zsq_arm64_bundle/bin/zsq_benchmark
 ```
 
 把上述输出贴出来，我才能准确判断是哪一种格式问题。
+
+
+从这些输出看，格式和架构都正确：
+
+- B机是 `aarch64`
+- 脚本是 Unix LF，不是 CRLF
+- `bash -n` 通过
+- 二进制是 ARM64 ELF
+
+所以不是 Windows/Unix 格式问题。
+
+最可能原因是 `manifest.txt` 缺失。脚本创建运行目录后，在打印 `[1/4]` 之前执行：
+
+```bash
+sed 's/^/  /' "$SCRIPT_DIR/manifest.txt"
+```
+
+若文件不存在，`set -e` 会让脚本立即退出，于是只留下一个近乎空的目录。
+
+先检查：
+
+```bash
+ls -l \
+  zsq_arm64_bundle/manifest.txt \
+  zsq_arm64_bundle/extract_zsq_results.py \
+  zsq_arm64_bundle/bin/zsq_benchmark
+```
+
+如果 `manifest.txt` 缺失，重新解压完整构建包，或者从 ARM 编译机把它复制过来：
+
+```text
+zsq_arm64_bundle/manifest.txt
+```
+
+再检查动态库：
+
+```bash
+LD_LIBRARY_PATH="$PWD/zsq_arm64_bundle/lib" \
+ldd zsq_arm64_bundle/bin/zsq_benchmark
+```
+
+不能出现 `not found`。
+
+然后用调试方式运行，命令结束后打印退出码：
+
+```bash
+BUILD_ORDER=zsq SEARCH_ORDER=zsq \
+THREAD_COUNT=32 \
+LINK_RANGE=32 \
+LINK_CANDIDATE_SIZE=300 \
+BUILD_ITER_COUNT=3 \
+SEARCH_RANGES=10,15,20,30,40,50,75,100,150,200,300,400,800 \
+TOP_KS=10 \
+WARMUP_QUERIES=1000 \
+ROUNDS=5 \
+bash -x zsq_arm64_bundle/run_on_b.sh \
+  falcon/dataset zsq_decode_l2_test
+
+echo "exit_code=$?"
+```
+
+如果仍然没有输出，直接验证二进制能否启动：
+
+```bash
+LD_LIBRARY_PATH="$PWD/zsq_arm64_bundle/lib" \
+zsq_arm64_bundle/bin/zsq_benchmark --help
+
+echo "exit_code=$?"
+```
+
+重点看运行目录：
+
+```bash
+find zsq_decode_l2_test -maxdepth 3 -type f -ls
+```
+
+如果仅有大小为0的 `results/environment.txt`，基本可以确定是在读取 `manifest.txt` 时退出。若 `environment.txt` 有内容，则查看最后一项：
+
+```bash
+tail -n 30 zsq_decode_l2_test/zsq_run_*/results/environment.txt
+```
+
+当前第一优先检查的就是 `zsq_arm64_bundle/manifest.txt`。
