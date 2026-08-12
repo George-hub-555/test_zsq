@@ -1,0 +1,15 @@
+ uname -m
+aarch64
+[tysearch@default-keplerengine-37-1-10 g50064150]$ file zsq_arm64_bundle/run_on_b.sh
+zsq_arm64_bundle/run_on_b.sh: Bourne-Again shell script, ASCII text executable
+[tysearch@default-keplerengine-37-1-10 g50064150]$ file zsq_arm64_bundle/bin/zsq_benchmark
+zsq_arm64_bundle/bin/zsq_benchmark: ELF 64-bit LSB executable, ARM aarch64, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 3.7.0, BuildID[sha1]=c51ff7cf3f8f1657203dc469d6d3d6c3c6ade294, with debug_info, not stripped
+[tysearch@default-keplerengine-37-1-10 g50064150]$ head -n 2 zsq_arm64_bundle/run_on_b.sh | od -An -tx1c
+  23  21  2f  75  73  72  2f  62  69  6e  2f  65  6e  76  20  62
+   #   !   /   u   s   r   /   b   i   n   /   e   n   v       b
+  61  73  68  0a  73  65  74  20  2d  65  75  6f  20  70  69  70
+   a   s   h  \n   s   e   t       -   e   u   o       p   i   p
+  65  66  61  69  6c  0a
+   e   f   a   i   l  \n
+[tysearch@default-keplerengine-37-1-10 g50064150]$ bash -n zsq_arm64_bundle/run_on_b.sh
+[tysearch@default-keplerengine-37-1-10 g50064150]$ 
