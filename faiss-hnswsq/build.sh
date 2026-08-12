@@ -69,13 +69,26 @@ JOBS="${JOBS:-$(nproc)}"
 # 环境检查
 # ---------------------------------------------------------------------------
 echo "==> 检查构建环境"
-for tool in cmake g++ make ninja; do
+for tool in cmake g++ make; do
     if ! command -v "$tool" >/dev/null 2>&1; then
         echo "缺少工具: $tool" >&2
-        echo "请先安装: sudo apt install cmake g++ make ninja-build" >&2
+        echo "请先安装 (二选一):" >&2
+        echo "  Ubuntu/Debian: sudo apt install cmake g++ make ninja-build" >&2
+        echo "  openEuler/CentOS/Fedora: sudo dnf install cmake gcc-c++ make ninja-build" >&2
         exit 1
     fi
 done
+
+# faiss 1.15 要求 CMake >= 3.22。openEuler 22.03 自带 3.20, 需要单独升级:
+#   sudo dnf install cmake   (24.03+ 自带 3.26+)
+#   或 pip install cmake --user  (任意版本都可用)
+CMAKE_MAJOR_MINOR="$(cmake --version | head -1 | grep -oP 'cmake version \K[0-9]+\.[0-9]+')"
+if [[ "$(echo "$CMAKE_MAJOR_MINOR" | awk -F. '{print $1*100+$2}')" -lt 322 ]]; then
+    echo "错误: 需要 CMake >= 3.22, 当前是 $CMAKE_MAJOR_MINOR" >&2
+    echo "  openEuler 22.03: sudo dnf install cmake 或 pip install cmake --user" >&2
+    echo "  openEuler 24.03+: sudo dnf install cmake" >&2
+    exit 1
+fi
 
 # 这个版本的 faiss CMake 强制要求 BLAS/LAPACK (find_package(... REQUIRED))
 # 因此 OpenBLAS 是硬依赖, 不是可选项。
@@ -181,8 +194,9 @@ if [[ -n "${OPENBLAS_DIR:-}" ]]; then
     OPENBLAS_DEV_LIB="$(find "${OPENBLAS_DIR}" -name "libopenblas.a" 2>/dev/null | head -1)"
 fi
 if [[ -z "$OPENBLAS_DEV_LIB" ]]; then
-    for dir in /usr/lib/aarch64-linux-gnu /usr/lib/arm64-linux-gnu /usr/lib \
-        /usr/local/lib /usr/lib/x86_64-linux-gnu; do
+    # RPM 系 (openEuler/CentOS/Fedora) 的 64 位库在 /usr/lib64
+    for dir in /usr/lib64 /usr/lib/aarch64-linux-gnu /usr/lib/arm64-linux-gnu \
+        /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu; do
         if [[ -f "${dir}/libopenblas.a" ]]; then
             OPENBLAS_DEV_LIB="${dir}/libopenblas.a"
             break

@@ -16,17 +16,31 @@ Faiss-hnsw-sq/
 
 ## 一、准备环境（ARM64 Linux）
 
+**Ubuntu/Debian：**
+
 ```bash
 sudo apt update
 sudo apt install -y build-essential cmake ninja-build libopenblas-dev
 ```
 
+**openEuler（华为鲲鹏常见系统，dnf 包管理）：**
+
+```bash
+sudo dnf install -y gcc-c++ cmake ninja-build openblas-devel
+```
+
+> openEuler 注意两点：
+> 1. **CMake 版本**：faiss 1.15 要求 CMake ≥ 3.22。openEuler 22.03 LTS 自带 3.20
+>    不满足，需升级：`sudo dnf install cmake`（若仓库没有新版本，可用
+>    `pip install cmake --user` 装任意新版本）。openEuler 24.03+ 自带 3.26+ 满足。
+> 2. 64 位库路径是 `/usr/lib64`，build.sh 已包含该搜索路径。
+
 依赖说明：
 
-- **libopenblas-dev**：必须。Faiss 1.15 的 CMake 强制 `find_package(BLAS REQUIRED)`，
-  没有 OpenBLAS 无法配置。装 dev 包还会提供 `libopenblas.a`，可让最终可执行文件
-  完全不依赖目标机器的 OpenBLAS 安装。
-- **build-essential**：g++（要求支持 C++17 和 OpenMP，GCC 8+ 即可）。
+- **libopenblas-dev / openblas-devel**：必须。Faiss 1.15 的 CMake 强制
+  `find_package(BLAS REQUIRED)`，没有 OpenBLAS 无法配置。装 dev 包还会提供
+  `libopenblas.a`，可让最终可执行文件完全不依赖目标机器的 OpenBLAS 安装。
+- **build-essential / gcc-c++**：g++（要求支持 C++17 和 OpenMP，GCC 8+ 即可）。
 
 ## 二、编译
 
@@ -144,6 +158,11 @@ ef_construction, query_count, repeats, build_seconds, sq`
 
 **Q: 在树莓派 4（ARMv8.0）上能跑吗？**
 能。默认 `generic` 优化仅用 NEON（ARMv8.0 必需指令），产物兼容所有 aarch64。
+
+**Q: 在 openEuler + 鲲鹏 920 上编译，要不要开 `--sve`？**
+鲲鹏 920 支持 ARM SVE（128 位向量），开 `--sve` 能获得一定加速；但前提是
+**测试机 B 也是同一款支持 SVE 的 CPU**，否则产物跑不了。不确定或测试机
+型号不同，就用默认（不开 SVE），兼容性最好。判断方法：`lscpu | grep -i sve`。
 
 **Q: 为什么不用全静态链接？**
 glibc 全静态会在 `getaddrinfo`/`dlopen` 等路径出问题，faiss 不需要这些功能，但
