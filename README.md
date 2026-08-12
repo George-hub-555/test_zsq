@@ -335,3 +335,42 @@ THREAD_COUNT=32 LINK_RANGE=32 LINK_CANDIDATE_SIZE=300 BUILD_ITER_COUNT=3 SEARCH_
 ```
 BUILD_ORDER=zsq SEARCH_ORDER=zsq THREAD_COUNT=32 LINK_RANGE=64 LINK_CANDIDATE_SIZE=600 BUILD_ITER_COUNT=5 SEARCH_RANGES=10,15,20,30,40,50,75,100,150,200,300,400,800 TOP_KS=10 WARMUP_QUERIES=1000 ROUNDS=5 bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_top10_l32_c300_i3
 ```
+
+
+# 修改距离计算方式
+可以。如果你指的是只把修改后的源码文件传到 ARM 编译机，可以只替换这一份：
+
+```text
+falcon/common/shard_format/fusion_index/embedding_index/quantizer_index/rabitq_index/rabitq_codec/blink_graph_zsq_searcher_adaptive.cpp
+```
+
+然后在 ARM 编译机重新执行：
+
+```bash
+bash test_zsq/build_on_a.sh
+```
+
+Bazel会重新编译受该文件影响的目标，并生成新的测试包。
+
+如果你指的是测试机，则不能只替换 `.cpp`。测试机至少要替换重新编译生成的：
+
+```text
+zsq_arm64_bundle/bin/zsq_benchmark
+```
+
+若编译环境和测试机依赖环境与上次完全一致，通常只替换这个二进制即可：
+
+```bash
+cp 新包/zsq_arm64_bundle/bin/zsq_benchmark \
+   旧包/zsq_arm64_bundle/bin/zsq_benchmark
+chmod +x 旧包/zsq_arm64_bundle/bin/zsq_benchmark
+```
+
+建议替换后确认新旧二进制哈希不同：
+
+```bash
+sha256sum 新包/zsq_arm64_bundle/bin/zsq_benchmark
+sha256sum 旧包/zsq_arm64_bundle/bin/zsq_benchmark
+```
+
+最稳妥的做法仍然是整体替换新生成的 `zsq_arm64_bundle`，因为如果链接依赖发生变化，只换二进制可能出现动态库不一致。不过本次只是单个C++实现文件的函数体修改，没有新增依赖、接口或索引格式，使用相同ARM编译环境时，只替换重新编译后的 `bin/zsq_benchmark` 通常足够。
