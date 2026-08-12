@@ -324,3 +324,10 @@ SIFT1M 建图库会同时持有原始向量和建图中间结构，实际峰值�
 ### 结果目录已存在或文件已存在
 
 benchmark 主动拒绝覆盖索引和 CSV。重新运行 `run_on_b.sh` 会生成新的 UTC 时间戳目录。
+
+
+# 单测zsq
+
+```
+THREAD_COUNT=32 LINK_RANGE=32 LINK_CANDIDATE_SIZE=300 BUILD_ITER_COUNT=3 SEARCH_RANGES=10,15,20,30,40,50,75,100,150,200,300,400,800 TOP_KS=10 WARMUP_QUERIES=1000 ROUNDS=5 bash zsq_arm64_bundle/run_on_b.sh falcon/dataset zsq_top10_l32_c300_i3
+```
