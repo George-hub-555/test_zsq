@@ -1,0 +1,22 @@
+
+    OpenBLAS: 已找到 (系统)
+    检测到 ARM64 架构: aarch64
+==> 配置 faiss (BLAS=ON, SVE=0)
+-- Using threaded OpenBLAS: /usr/lib64/libopenblaso.so
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /root/g50064150/Faiss-zsq/build/faiss
+==> 编译 faiss (16 jobs)
+Consolidate compiler generated dependencies of target faiss
+[100%] Built target faiss
+==> 编译 benchmark_sift1m
+    静态链接 OpenBLAS: /usr/lib64/libopenblas.a
+/usr/bin/ld: /usr/lib64/libopenblas.a(sgesvd.o): in function `sgesvd_':
+(.text+0x8dc): undefined reference to `_gfortran_concat_string'
+/usr/bin/ld: (.text+0xb80): undefined reference to `_gfortran_concat_string'
+/usr/bin/ld: /usr/lib64/libopenblas.a(sormbr.o): in function `sormbr_':
+(.text+0x32c): undefined reference to `_gfortran_concat_string'
+/usr/bin/ld: (.text+0x4a8): undefined reference to `_gfortran_concat_string'
+/usr/bin/ld: (.text+0x5a4): undefined reference to `_gfortran_concat_string'
+/usr/bin/ld: /usr/lib64/libopenblas.a(sormbr.o):(.text+0x600): more undefined references to `_gfortran_concat_string' follow
+collect2: error: ld returned 1 exit status
