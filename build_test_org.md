@@ -98,7 +98,7 @@ cd blink_checker_pkg
 
 export LD_LIBRARY_PATH="$PWD/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
-./bin/blink_graph_index_checker \
+./bazel-bin/tools/index_factory/blink_graph_index_checker \
   -data_path=/opt/huawei/data3/g50064150/falcon/dataset/ \
   -query_size=10000 \
   -doc_size=1000000 \
