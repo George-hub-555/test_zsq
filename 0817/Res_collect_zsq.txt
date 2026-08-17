@@ -1,4 +1,4 @@
-./bazel-bin/tools/index_factory/blink_graph_index_checker   -data_path=/opt/huawei/data3/g50064150/falcon/dataset/   -query_size=10000   -doc_size=1000000   -dim=128   -thread_count=80   -search_range=400   -build_index=true   -index_type=1   -rotator_type=1
+./bazel-bin/tools/index_factory/blink_graph_index_checker   -data_path=/opt/huawei/data3/g50064150/falcon/dataset/   -query_size=10000   -doc_size=1000000   -dim=128   -thread_count=80   -search_range=400   -build_index=true   -index_type=1  link_range = 32 -rotator_type=1
 search_range = 10
 Total res count 100 in 100
 2026-08-17 10:51:45,729|INFO|281473242656800|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 88519 recall 0.88519 time cost 91 us
