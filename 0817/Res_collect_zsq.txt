@@ -382,3 +382,107 @@ Total res count 100 in 100
 2026-08-17 11:04:23,718|INFO|281472933945376|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 881739 recall 0.97971 time cost 576 us
 2026-08-17 11:04:24,321|INFO|281472933945376|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 979667 recall 0.979667 time cost 577 us
 2026-08-17 11:04:24,321|INFO|281472933945376|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.979667 time cost 577.27us, avg result count 100 same result 979667
+
+
+link_range = 64, search_range = 
+100
+Total res count 100 in 100
+2026-08-17 16:50:25,777|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 91313 recall 0.91313 time cost 175 us
+2026-08-17 16:50:25,978|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 1999 same result 182161 recall 0.910805 time cost 176 us
+2026-08-17 16:50:26,178|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 2999 same result 273297 recall 0.91099 time cost 176 us
+2026-08-17 16:50:26,377|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 3999 same result 364583 recall 0.911457 time cost 176 us
+2026-08-17 16:50:26,576|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 4999 same result 455858 recall 0.911716 time cost 175 us
+2026-08-17 16:50:26,775|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 5999 same result 547659 recall 0.912765 time cost 175 us
+2026-08-17 16:50:26,973|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 6999 same result 639694 recall 0.913849 time cost 175 us
+2026-08-17 16:50:27,173|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 7999 same result 731002 recall 0.913752 time cost 175 us
+2026-08-17 16:50:27,371|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 822889 recall 0.914321 time cost 175 us
+2026-08-17 16:50:27,570|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 914224 recall 0.914224 time cost 175 us
+2026-08-17 16:50:27,570|INFO|281472952545312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.914224 time cost 175.369us, avg result count 100 same result 914224
+
+125
+Total res count 100 in 100
+2026-08-17 16:52:46,698|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 96274 recall 0.96274 time cost 246 us
+2026-08-17 16:52:46,967|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 1999 same result 192364 recall 0.96182 time cost 247 us
+2026-08-17 16:52:47,238|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 2999 same result 288645 recall 0.96215 time cost 247 us
+2026-08-17 16:52:47,507|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 3999 same result 385058 recall 0.962645 time cost 247 us
+2026-08-17 16:52:47,776|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 4999 same result 481594 recall 0.963188 time cost 247 us
+2026-08-17 16:52:48,045|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 5999 same result 578278 recall 0.963797 time cost 246 us
+2026-08-17 16:52:48,313|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 6999 same result 675012 recall 0.964303 time cost 246 us
+2026-08-17 16:52:48,583|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 7999 same result 771428 recall 0.964285 time cost 246 us
+2026-08-17 16:52:48,852|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 868120 recall 0.964578 time cost 246 us
+2026-08-17 16:52:49,121|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 964614 recall 0.964614 time cost 246 us
+2026-08-17 16:52:49,121|INFO|281473876193312|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.964614 time cost 246.9us, avg result count 100 same result 964614
+
+150
+Total res count 100 in 100
+2026-08-17 16:58:00,757|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 97314 recall 0.97314 time cost 289 us
+2026-08-17 16:58:01,075|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 1999 same result 194544 recall 0.97272 time cost 292 us
+2026-08-17 16:58:01,397|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 2999 same result 291838 recall 0.972793 time cost 294 us
+2026-08-17 16:58:01,719|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 3999 same result 389241 recall 0.973103 time cost 295 us
+2026-08-17 16:58:02,039|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 4999 same result 486750 recall 0.9735 time cost 295 us
+2026-08-17 16:58:02,360|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 5999 same result 584335 recall 0.973892 time cost 295 us
+2026-08-17 16:58:02,679|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 6999 same result 681903 recall 0.974147 time cost 295 us
+2026-08-17 16:58:03,001|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 7999 same result 779240 recall 0.97405 time cost 296 us
+2026-08-17 16:58:03,320|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 876790 recall 0.974211 time cost 295 us
+2026-08-17 16:58:03,641|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 974224 recall 0.974224 time cost 296 us
+2026-08-17 16:58:03,641|INFO|281472864182304|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.974224 time cost 296.113us, avg result count 100 same result 974224
+
+200
+Total res count 100 in 100
+2026-08-17 16:59:30,360|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 97779 recall 0.97779 time cost 315 us
+2026-08-17 16:59:30,702|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 1999 same result 195599 recall 0.977995 time cost 317 us
+2026-08-17 16:59:31,042|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 2999 same result 293471 recall 0.978237 time cost 317 us
+2026-08-17 16:59:31,381|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 3999 same result 391334 recall 0.978335 time cost 316 us
+2026-08-17 16:59:31,718|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 4999 same result 489187 recall 0.978374 time cost 316 us
+2026-08-17 16:59:32,055|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 5999 same result 587175 recall 0.978625 time cost 315 us
+2026-08-17 16:59:32,391|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 6999 same result 685171 recall 0.978816 time cost 315 us
+2026-08-17 16:59:32,731|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 7999 same result 783059 recall 0.978824 time cost 315 us
+2026-08-17 16:59:33,067|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 880998 recall 0.978887 time cost 315 us
+2026-08-17 16:59:33,406|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 978884 recall 0.978884 time cost 315 us
+2026-08-17 16:59:33,406|INFO|281473545375776|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.978884 time cost 315.441us, avg result count 100 same result 978884
+
+400
+Total res count 100 in 100
+2026-08-17 17:01:28,236|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 98010 recall 0.9801 time cost 581 us
+2026-08-17 17:01:28,882|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 1999 same result 196103 recall 0.980515 time cost 601 us
+2026-08-17 17:01:29,525|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 2999 same result 294185 recall 0.980617 time cost 606 us
+2026-08-17 17:01:30,131|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 3999 same result 392298 recall 0.980745 time cost 598 us
+2026-08-17 17:01:30,734|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 4999 same result 490412 recall 0.980824 time cost 593 us
+2026-08-17 17:01:31,336|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 5999 same result 588600 recall 0.981 time cost 590 us
+2026-08-17 17:01:31,936|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 6999 same result 686785 recall 0.981121 time cost 587 us
+2026-08-17 17:01:32,539|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 7999 same result 784906 recall 0.981133 time cost 585 us
+2026-08-17 17:01:33,136|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 883101 recall 0.981223 time cost 583 us
+2026-08-17 17:01:33,740|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 981244 recall 0.981244 time cost 582 us
+2026-08-17 17:01:33,740|INFO|281473832955936|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.981244 time cost 582.957us, avg result count 100 same result 981244
+
+800
+Total res count 100 in 100
+2026-08-17 17:04:45,845|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 97990 recall 0.9799 time cost 1142 us
+2026-08-17 17:04:47,010|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 1999 same result 195991 recall 0.979955 time cost 1142 us
+2026-08-17 17:04:48,273|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 2999 same result 293989 recall 0.979963 time cost 1174 us
+2026-08-17 17:04:49,482|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 3999 same result 392038 recall 0.980095 time cost 1176 us
+2026-08-17 17:04:50,770|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 4999 same result 490093 recall 0.980186 time cost 1193 us
+2026-08-17 17:04:52,029|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 5999 same result 588237 recall 0.980395 time cost 1200 us
+2026-08-17 17:04:53,310|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 6999 same result 686379 recall 0.980541 time cost 1208 us
+2026-08-17 17:04:54,552|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 7999 same result 784461 recall 0.980576 time cost 1209 us
+2026-08-17 17:04:55,708|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 882578 recall 0.980642 time cost 1201 us
+2026-08-17 17:04:56,969|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 980667 recall 0.980667 time cost 1204 us
+2026-08-17 17:04:56,970|INFO|281473706418208|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.980667 time cost 1204.61us, avg result count 100 same result 980667
+
+
+link_range = 128, search_range=
+100
+Total res count 100 in 100
+2026-08-17 17:07:19,988|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 999 same result 89662 recall 0.89662 time cost 326 us
+2026-08-17 17:07:20,340|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 1999 same result 179034 recall 0.89517 time cost 327 us
+2026-08-17 17:07:20,695|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 2999 same result 268582 recall 0.895273 time cost 328 us
+2026-08-17 17:07:21,043|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 3999 same result 358308 recall 0.89577 time cost 328 us
+2026-08-17 17:07:21,395|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 4999 same result 448207 recall 0.896414 time cost 328 us
+2026-08-17 17:07:21,738|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 5999 same result 538474 recall 0.897457 time cost 326 us
+2026-08-17 17:07:22,070|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 6999 same result 629146 recall 0.89878 time cost 324 us
+2026-08-17 17:07:22,417|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 7999 same result 719075 recall 0.898844 time cost 324 us
+2026-08-17 17:07:22,759|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 8999 same result 809533 recall 0.899481 time cost 323 us
+2026-08-17 17:07:23,108|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:246|Query count 9999 same result 899405 recall 0.899405 time cost 324 us
+2026-08-17 17:07:23,108|INFO|281473417232416|127.0.0.1|tools/index_factory/blink_graph_index_checker.cpp:261|Total recall 0.899405 time cost 324.092us, avg result count 100 same result 899405
+
+150
